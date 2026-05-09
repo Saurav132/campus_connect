@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-light-bg: #fffdf7;
+  --color-brand-light-bg-alt: #fff8e7;
+  --color-brand-light-bg-accent: #fef3c7;
+  
+  --color-brand-dark-bg: #030712;
+  --color-brand-dark-bg-alt: #080b14;
+  --color-brand-dark-bg-accent: #0f172a;
+
+  --color-brand-accent-1: #facc15;
+  --color-brand-accent-2: #eab308;
+  --color-brand-accent-3: #f59e0b;
+
+  --color-brand-light-text: #111827;
+  --color-brand-light-text-muted: #374151;
+  --color-brand-light-text-light: #6b7280;
+
+  --color-brand-dark-text: #f8fafc;
+  --color-brand-dark-text-muted: #cbd5e1;
+  --color-brand-dark-text-light: #94a3b8;
+
+  --color-brand-light-card: rgba(255, 255, 255, 0.72);
+  --color-brand-light-border: rgba(250, 204, 21, 0.15);
+  
+  --color-brand-dark-card: rgba(15, 23, 42, 0.72);
+  --color-brand-dark-border: rgba(255, 255, 255, 0.08);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    --bg-primary: var(--color-brand-light-bg);
+    --bg-secondary: var(--color-brand-light-bg-alt);
+    --bg-tertiary: var(--color-brand-light-bg-accent);
+    
+    --text-primary: var(--color-brand-light-text);
+    --text-secondary: var(--color-brand-light-text-muted);
+    --text-tertiary: var(--color-brand-light-text-light);
+
+    --card-bg: var(--color-brand-light-card);
+    --card-border: var(--color-brand-light-border);
+    
+    --accent: var(--color-brand-accent-2);
+    --accent-hover: var(--color-brand-accent-3);
+  }
+
+  .dark {
+    --bg-primary: var(--color-brand-dark-bg);
+    --bg-secondary: var(--color-brand-dark-bg-alt);
+    --bg-tertiary: var(--color-brand-dark-bg-accent);
+    
+    --text-primary: var(--color-brand-dark-text);
+    --text-secondary: var(--color-brand-dark-text-muted);
+    --text-tertiary: var(--color-brand-dark-text-light);
+
+    --card-bg: var(--color-brand-dark-card);
+    --card-border: var(--color-brand-dark-border);
+
+    --accent: var(--color-brand-accent-1);
+    --accent-hover: var(--color-brand-accent-2);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-300;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-[rgba(255,255,255,0.75)] dark:bg-[var(--card-bg)] backdrop-blur-[24px] border border-[rgba(250,204,21,0.15)] dark:border-[var(--card-border)] rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)];
+  }
+  .glass-sidebar {
+    @apply bg-[rgba(255,255,255,0.75)] dark:bg-[var(--card-bg)] backdrop-blur-[24px] border-r border-[rgba(250,204,21,0.15)] dark:border-[var(--card-border)] shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.1)];
+  }
+  .glass-header {
+    @apply bg-white/40 dark:bg-[var(--card-bg)] border-b border-[rgba(250,204,21,0.08)] dark:border-[var(--card-border)] backdrop-blur-md;
+  }
+  .active-nav {
+    @apply bg-[rgba(250,204,21,0.15)] dark:bg-[rgba(250,204,21,0.1)] text-[#eab308] border-r-[3px] border-[#facc15] font-semibold;
+  }
+  .glow-yellow {
+    @apply shadow-[0_0_20px_rgba(250,204,21,0.3)];
+  }
+}

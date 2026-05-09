@@ -1,0 +1,155 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitives
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        request.auth.token.email == 'sauravdhapola04@gmail.com' || 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin')
+      ); 
+    }
+
+    // Admins
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable through Firebase Console natively
+    }
+
+    // Reports
+    match /reports/{reportId} {
+      allow read, list: if isAdmin() || (isSignedIn() && resource.data.reportedBy == request.auth.uid);
+      allow create: if isSignedIn() && incoming().reportedBy == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if (isSignedIn() && request.auth.uid == userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /connections/{connectionId} {
+      // User can read if they are part of the connection
+      allow read: if isSignedIn() && (existing().fromUserId == request.auth.uid || existing().toUserId == request.auth.uid);
+      // Can query all connections involving them
+      allow list: if isSignedIn() && (resource.data.fromUserId == request.auth.uid || resource.data.toUserId == request.auth.uid);
+      // Can create if they are fromUserId
+      allow create: if isSignedIn() && incoming().fromUserId == request.auth.uid;
+      // Can update if they are toUserId (accept/reject) or fromUserId (cancel pending)
+      allow update: if isSignedIn() && (existing().toUserId == request.auth.uid || existing().fromUserId == request.auth.uid);
+      // Can delete if they are part of the connection
+      allow delete: if isSignedIn() && (existing().fromUserId == request.auth.uid || existing().toUserId == request.auth.uid);
+    }
+
+    match /notifications/{notificationId} {
+      allow read, list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.receiverId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || existing().receiverId == request.auth.uid);
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || existing().receiverId == request.auth.uid);
+    }
+
+    match /projects/{projectId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() && (existing().ownerId == request.auth.uid || request.auth.uid in existing().members) || isAdmin();
+      allow delete: if (isSignedIn() && existing().ownerId == request.auth.uid) || isAdmin();
+    }
+
+    match /resources/{resourceId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().uploadedBy == request.auth.uid;
+      allow update, delete: if (isSignedIn() && existing().uploadedBy == request.auth.uid) || isAdmin();
+    }
+
+    match /opportunities/{opportunityId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().postedBy == request.auth.uid;
+      allow update, delete: if (isSignedIn() && existing().postedBy == request.auth.uid) || isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && incoming().postedBy == request.auth.uid && incoming().verificationStatus == 'pending';
+      allow update: if (isSignedIn() && (
+        // Allow registration update (any signed in user can register)
+        incoming().diff(existing()).affectedKeys().hasOnly(['registeredUsers']) ||
+        // Allow owner to edit if it's still pending
+        (existing().postedBy == request.auth.uid && existing().verificationStatus == 'pending' && incoming().postedBy == request.auth.uid)
+      )) || isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && existing().postedBy == request.auth.uid);
+    }
+
+    match /aiChats/{chatId} {
+      allow read, list: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid;
+      allow delete: if (isSignedIn() && existing().userId == request.auth.uid) || isAdmin();
+
+      match /messages/{messageId} {
+         allow read, list: if isSignedIn() && get(/databases/$(database)/documents/aiChats/$(chatId)).data.userId == request.auth.uid;
+         allow create: if isSignedIn() && get(/databases/$(database)/documents/aiChats/$(chatId)).data.userId == request.auth.uid;
+      }
+    }
+
+    match /resume_analyses/{analysisId} {
+      allow read, list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /projectRequests/{requestId} {
+      allow read: if isSignedIn() && 
+        (existing().userId == request.auth.uid || 
+         get(/databases/$(database)/documents/projects/$(existing().projectId)).data.ownerId == request.auth.uid);
+      
+      allow list: if isSignedIn() && 
+        (resource.data.userId == request.auth.uid || 
+         get(/databases/$(database)/documents/projects/$(resource.data.projectId)).data.ownerId == request.auth.uid);
+
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && 
+        get(/databases/$(database)/documents/projects/$(existing().projectId)).data.ownerId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /chats/{chatId} {
+      allow read: if isSignedIn() && (resource == null || request.auth.uid in resource.data.participants);
+      allow list: if isSignedIn() && request.auth.uid in resource.data.participants;
+      allow create: if isSignedIn() && request.auth.uid in incoming().participants;
+      allow update: if isSignedIn() && request.auth.uid in existing().participants;
+      
+      match /messages/{messageId} {
+        allow read, list: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow create: if isSignedIn() && 
+          request.auth.uid == incoming().senderId &&
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+        allow update: if isSignedIn() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+      }
+    }
+    match /feed_posts/{postId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && (incoming().userId == request.auth.uid || isAdmin());
+      allow update: if isSignedIn() && (
+        existing().userId == request.auth.uid || 
+        isAdmin() || 
+        (incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'likedBy', 'comments', 'commentsList']))
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+  }
+}
+

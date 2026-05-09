@@ -1,0 +1,302 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in the system.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["student", "alumni", "mentor", "admin"] },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "verificationStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] },
+        "idProofUrl": { "type": "string" },
+        "department": { "type": "string" },
+        "passOutYear": { "type": "string" },
+        "company": { "type": "string" },
+        "position": { "type": "string" },
+        "bio": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "github": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    },
+    "Connection": {
+      "title": "Connection",
+      "description": "Networking connection request or established link.",
+      "type": "object",
+      "properties": {
+        "fromUserId": { "type": "string" },
+        "toUserId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["fromUserId", "toUserId", "status", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "App notification",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "type": { "type": "string", "enum": ["connection_request", "connection_accepted", "project_join_request", "project_request_accepted", "project_request_rejected", "new_message", "team_invitation"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "contextId": { "type": "string" }
+      },
+      "required": ["userId", "type", "createdAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "A startup or collaborative project.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "technologies": { "type": "array", "items": { "type": "string" } },
+        "roles": { "type": "array", "items": { "type": "string" } },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "ownerId": { "type": "string" },
+        "members": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["open", "closed", "completed"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "ownerId", "members", "status", "createdAt"]
+    },
+    "ProjectRequest": {
+      "title": "ProjectRequest",
+      "description": "Request to join a project.",
+      "type": "object",
+      "properties": {
+        "projectId": { "type": "string" },
+        "userId": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "rejected"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["projectId", "userId", "status", "createdAt"]
+    },
+    "Resource": {
+      "title": "Resource",
+      "description": "Academic resources, notes, and study material.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "subcategory": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "fileType": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "uploadedBy": { "type": "string" },
+        "uploaderRole": { "type": "string" },
+        "downloads": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "fileUrl", "uploadedBy", "createdAt"]
+    },
+    "Opportunity": {
+      "title": "Opportunity",
+      "description": "Internships, jobs, and referrals.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "company": { "type": "string" },
+        "type": { "type": "string", "enum": ["internship", "job", "referral", "freelance"] },
+        "location": { "type": "string" },
+        "stipend": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "eligibility": { "type": "string" },
+        "applicationLink": { "type": "string" },
+        "postedBy": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "closed"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "company", "postedBy", "createdAt"]
+    },
+    "AiChat": {
+      "title": "AiChat",
+      "description": "An AI assistant conversation session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "createdAt", "updatedAt"]
+    },
+    "AiMessage": {
+      "title": "AiMessage",
+      "description": "A message inside an AiChat session.",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string" },
+        "sender": { "type": "string", "enum": ["user", "ai"] },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["chatId", "sender", "message", "createdAt"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Campus events, hackathons, and webinars.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["hackathon", "workshop", "webinar", "seminar", "coding contest"] },
+        "date": { "type": "string" },
+        "location": { "type": "string" },
+        "registrationLink": { "type": "string" },
+        "postedBy": { "type": "string" },
+        "verificationStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] },
+        "registeredUsers": { "type": "array", "items": { "type": "string" } },
+        "teamSize": { "type": "number" },
+        "requiredSkills": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "date", "postedBy", "createdAt", "verificationStatus"]
+    },
+      "title": "Chat",
+      "description": "A conversation channel.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["direct", "project"] },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "projectId": { "type": "string" },
+        "contextType": { "type": "string" },
+        "contextId": { "type": "string" },
+        "contextTitle": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "lastMessageAt": { "type": "string" },
+        "lastMessageSenderId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["type", "participants", "createdAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A message within a chat.",
+      "type": "object",
+      "properties": {
+        "chatId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "readBy": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["chatId", "senderId", "createdAt", "readBy"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "User submitted reports for moderation.",
+      "type": "object",
+      "properties": {
+        "reportedBy": { "type": "string" },
+        "targetId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["user", "resource", "chat", "project", "opportunity", "event"] },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "reviewed", "resolved"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["reportedBy", "targetId", "targetType", "reason", "status", "createdAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Admin privileges for users.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "addedAt": { "type": "string" }
+      },
+      "required": ["email", "addedAt"]
+    },
+    "ResumeAnalysis": {
+      "title": "ResumeAnalysis",
+      "description": "AI analysis of a user's resume.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "fileName": { "type": "string" },
+        "status": { "type": "string", "enum": ["analyzing", "completed", "error"] },
+        "result": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "fileName", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile documents"
+    },
+    "/connections/{connectionId}": {
+      "schema": { "$ref": "#/entities/Connection" },
+      "description": "Connections between users"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "User notifications"
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Projects for team finder"
+    },
+    "/projectRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/ProjectRequest" },
+      "description": "Join requests for projects"
+    },
+    "/chats/{chatId}": {
+      "schema": { "$ref": "#/entities/Chat" },
+      "description": "Chat channels"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Messages inside a chat"
+    },
+    "/resources/{resourceId}": {
+      "schema": { "$ref": "#/entities/Resource" },
+      "description": "Uploaded academic resources"
+    },
+    "/opportunities/{opportunityId}": {
+      "schema": { "$ref": "#/entities/Opportunity" },
+      "description": "Posted opportunities for the community"
+    },
+    "/events/{eventId}": {
+      "schema": { "$ref": "#/entities/Event" },
+      "description": "Hosted events"
+    },
+    "/aiChats/{chatId}": {
+      "schema": { "$ref": "#/entities/AiChat" },
+      "description": "AI Assistant chat sessions"
+    },
+    "/aiChats/{chatId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/AiMessage" },
+      "description": "Messages inside an AI Assistant chat"
+    },
+    "/resume_analyses/{analysisId}": {
+      "schema": { "$ref": "#/entities/ResumeAnalysis" },
+      "description": "Resume AI analysis results"
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/Report" },
+      "description": "Moderation reports"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Admin privileges registry"
+    }
+  }
+}
